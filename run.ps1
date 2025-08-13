@@ -12,11 +12,17 @@ This script automates the following steps:
 .PARAMETER AudioFile
 (Required) The path to the audio or video file to process.
 
+.PARAMETER Model
+(Optional) The Whisper model to use (e.g., 'large-v3', 'medium.en').
+
+.PARAMETER Language
+(Optional) The language of the audio. If None, Whisper will auto-detect.
+
 .EXAMPLE
 .\run.ps1 -AudioFile "path\to\your\audio.mp4"
 
 .EXAMPLE
-.\run.ps1 -AudioFile "path\to\your\audio.wav" --model "medium.en"
+.\run.ps1 -AudioFile "path\to\your\audio.wav" -Model "medium.en"
 #>
 
 [CmdletBinding()]
@@ -24,8 +30,17 @@ param (
     [Parameter(Mandatory=$true, Position=0)]
     [string]$AudioFile,
 
-    [Parameter(ValueFromRemainingArguments=$true)]
-    [string[]]$RemainingArgs
+    [Parameter(Mandatory=$false)]
+    [string]$Token,
+
+    [Parameter(Mandatory=$false)]
+    [string]$Model,
+
+    [Parameter(Mandatory=$false)]
+    [string]$Language,
+
+    [Parameter(Mandatory=$false)]
+    [string]$OutputDir
 )
 
 # --- 1. Check and Create Virtual Environment ---
@@ -81,9 +96,15 @@ Write-Host "Executing the transcription and diarization pipeline..."
 Write-Host "-------------------------------------------------------"
 
 try {
-    # Combine the mandatory audio file argument with any remaining arguments
-    $AllArgs = @($AudioFile) + $RemainingArgs
-    python .\transcribe_diarize.py $AllArgs
+    # Build the argument list for the Python script dynamically
+    $pythonArgs = @($AudioFile)
+    if ($PSBoundParameters.ContainsKey('Token')) { $pythonArgs += "--token", $Token }
+    if ($PSBoundParameters.ContainsKey('Model')) { $pythonArgs += "--model", $Model }
+    if ($PSBoundParameters.ContainsKey('Language')) { $pythonArgs += "--language", $Language }
+    if ($PSBoundParameters.ContainsKey('OutputDir')) { $pythonArgs += "--output_dir", $OutputDir }
+
+    # Use the call operator '&' to execute the python script with the constructed arguments
+    & python .\transcribe_diarize.py $pythonArgs
 } catch {
     Write-Host "An error occurred while running the Python script." -ForegroundColor Red
     Write-Host $_.Exception.Message
