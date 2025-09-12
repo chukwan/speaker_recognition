@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Diarization</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        #controls { margin-bottom: 20px; }
+        #status { margin-bottom: 20px; font-style: italic; }
+        #transcript { width: 80%; max-width: 800px; border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; }
+        .transcript-entry { margin-bottom: 10px; }
+        .speaker { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Real-time Diarization Service</h1>
+
+    <div id="controls">
+        <label for="sessionName">Session Name:</label>
+        <input type="text" id="sessionName" name="sessionName" value="my-session">
+        <button id="recordButton">Record</button>
+        <button id="stopButton" disabled>Stop</button>
+    </div>
+
+    <div id="status">
+        Status: Idle
+    </div>
+
+    <h2>Live Transcript</h2>
+    <div id="transcript">
+        <!-- Transcript entries will be added here -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
